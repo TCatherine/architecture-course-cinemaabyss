@@ -67,6 +67,7 @@ spec:
       name: postgres-data
     spec:
       accessModes: ["{{ .Values.database.persistence.accessMode }}"]
+      storageClassName: "{{ .Values.database.persistence.storageClass }}"
       resources:
         requests:
           storage: {{ .Values.database.persistence.size }}

@@ -113,11 +113,15 @@ if [ "$USE_DOCKER" = true ]; then
   
   # Build the Docker image
   docker build -t cinemaabyss-api-tests .
+
+  echo "Docker container building is success..."
   
   # Run the tests in Docker
   docker run --network=cinemaabyss-network \
     -v "$(pwd)/reports:/app/reports" \
     cinemaabyss-api-tests $CMD_ARGS
+  
+  echo "Docker container run is success..."
 else
   echo "Running tests locally..."
   

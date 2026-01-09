@@ -40,8 +40,8 @@ spec:
             cpu: "1000m"
             memory: "1Gi"
           requests:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "50m"
+            memory: "52Mi"
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
@@ -66,9 +66,10 @@ spec:
       name: postgres-data
     spec:
       accessModes: ["ReadWriteOnce"]
+      storageClassName: local-path
       resources:
         requests:
-          storage: 10Gi
+          storage: 256Mi
 ---
 apiVersion: v1
 kind: Service
