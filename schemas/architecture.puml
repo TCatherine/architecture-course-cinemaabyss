@@ -1,0 +1,50 @@
+@startuml
+    !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+    title Контейнерная диаграмма системы CinemaAbyss
+
+    Person(user, "Пользователь", "Конечный пользователь платформы")
+    
+    System_Boundary(cinemaabyss, "CinemaAbyss") {
+        Container(proxy, "API Gateway", "Go/HTTP", "API-gateway")
+        
+        Container(monolith, "Монолит", "Go/HTTP", "Legacy приложение")
+        
+        ContainerDb(movies_db, "Movies Database", "PostgreSQL", "Хранит метаданные фильмов, жанры, рейтинги")
+        Container(movies_service, "Movies Service", "Go/HTTP", "Сервис каталога фильмов.")
+        
+        ContainerDb(users_db, "Users Database", "PostgreSQL", "Хранит данные пользователей, аутентификацию")
+        Container(users_service, "Users Service", "Go/HTTP", "Сервис управления пользователями.")
+        
+        ContainerDb(payments_db, "Payments Database", "PostgreSQL", "Хранит транзакции, историю платежей")
+        Container(payments_service, "Payments Service", "Go/HTTP", "Сервис обработки платежей.")
+        
+        ContainerDb(subscriptions_db, "Subscriptions Database", "PostgreSQL", "Хранит подписки, планы, статусы")
+        Container(subscriptions_service, "Subscriptions Service", "Go/HTTP", "Сервис управления подписками.")
+        
+        Container(events_service, "Events Service", "Go/HTTP", "Сервис событий для асинхронной коммуникации между доменами.")
+        
+        ContainerQueue(kafka, "Kafka", "Apache Kafka", "Message Broker для event-driven архитектуры. Топики: movie-events, user-events, payment-events, subscription-events")
+        
+        ContainerDb(monolith_db, "Monolith Database", "PostgreSQL", "Общая база данных монолита (legacy)")
+    }
+
+    Rel(user, proxy, "HTTP запросы", "HTTPS")
+    Rel(proxy, monolith, "Маршрутизация legacy запросов", "HTTP")
+    Rel(proxy, movies_service, "Маршрутизация запросов к фильмам", "HTTP")
+    Rel(proxy, users_service, "Маршрутизация запросов к пользователям", "HTTP")
+    Rel(proxy, payments_service, "Маршрутизация запросов к платежам", "HTTP")
+    Rel(proxy, subscriptions_service, "Маршрутизация запросов к подпискам", "HTTP")
+    Rel(proxy, events_service, "Маршрутизация запросов к событиям", "HTTP")
+    
+    Rel(movies_service, movies_db, "Чтение/запись", "SQL")
+    Rel(users_service, users_db, "Чтение/запись", "SQL")
+    Rel(payments_service, payments_db, "Чтение/запись", "SQL")
+    Rel(subscriptions_service, subscriptions_db, "Чтение/запись", "SQL")
+    Rel(monolith, monolith_db, "Чтение/запись", "SQL")
+    
+    Rel(movies_service, kafka, "Публикует события", "Kafka Protocol")
+    Rel(users_service, kafka, "Публикует события", "Kafka Protocol")
+    Rel(payments_service, kafka, "Публикует события", "Kafka Protocol")
+    Rel(subscriptions_service, kafka, "Публикует события", "Kafka Protocol")
+    Rel(events_service, kafka, "Публикует/подписывается на события", "Kafka Protocol")
+@enduml

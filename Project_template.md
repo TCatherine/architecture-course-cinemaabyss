@@ -2,10 +2,10 @@
 
 ## Задание 1
 
-1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
-Результат представьте в виде контейнерной диаграммы в нотации С4.
-Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+1. Спроектирована to be архитектура КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
+Результат представлен в виде контейнерной диаграммы в нотации С4.
+
+![ссылка на файл](schemas/architecture.png)
 
 
 ## Задание 2
@@ -48,6 +48,9 @@
 - Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
 
 ### 2. Kafka
+
+#### Задание
+
  Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
 
 Для этого нужно сделать MVP сервис events, который будет при вызове API создавать и сам же читать сообщения в топике Kafka.
@@ -59,6 +62,15 @@
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
 
+#### Результат
+
+Скриншот тестов:
+
+![ссылка на файл](schemas/test-result.png)
+
+Скриншот состояния топиков Kafka:
+
+![ссылка на файл](schemas/topics-status.png)
 
 ## Задание 3
 
@@ -271,8 +283,19 @@ cat .docker/config.json | base64
   Часть тестов с health-чек упадет, но создание событий отработает.
   Откройте логи event-service и сделайте скриншот обработки событий
 
+
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
+
+##### Результат
+
+Скриншот вывода вызова:
+
+![ссылка на файл](schemas/req-result.png)
+
+Скриншот вывода event-service:
+
+![ссылка на файл](schemas/events-service-log.png)
 
 
 ## Задание 4
@@ -349,6 +372,9 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+Скриншот вывода вызова:
+
+![ссылка на файл](schemas/req-result2.png)
 
 # Задание 5
 Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
@@ -388,7 +414,7 @@ kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n
 Например,
 
 ```bash
-kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
 ```
 
 Вывод будет типа такого
@@ -403,7 +429,7 @@ Code 503 : 399 (79.8 %)
 Можно еще проверить статистику
 
 ```bash
-kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+kubectl exec -n cinemaabyss $FORTIO_POD -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
 ```
 
 И там смотрим 
@@ -414,6 +440,10 @@ You can see 21 for the upstream_rq_pending_overflow value which means 21 calls s
 ```
 
 Приложите скриншот работы circuit breaker'а
+
+![ссылка на файл](schemas/test1.png)
+
+![ссылка на файл](schemas/test2.png)
 
 Удаляем все
 ```bash

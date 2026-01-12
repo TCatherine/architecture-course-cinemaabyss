@@ -5,7 +5,7 @@ global:
 
 # Image pull secrets
 imagePullSecrets:
-  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6
+  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6ICJWRU5oZEdobGNtbHVaVHBuYUhCZmQwOW1Sbk5HVEhKcFNsSkRNbUZRU25nNVZHdE9VMjVFY1djd1RWbzFORkpUVUVwMCIKCQl9Cgl9LAoJImNyZWRzU3RvcmUiOiAiZGVza3RvcCIsCgkiY3VycmVudENvbnRleHQiOiAiZGVza3RvcC1saW51eCIKfQo=
 # Database configuration
 database:
   host: postgres
@@ -22,18 +22,19 @@ database:
       cpu: 1000m
       memory: 1Gi
     requests:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 50m
+      memory: 52Mi
   persistence:
     enabled: true
-    size: 10Gi
+    size: 256Mi
     accessMode: ReadWriteOnce
+    storageClass: local-path
 
 # Monolith configuration
 monolith:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/monolith
+    repository: ghcr.io/tcatherine/architecture-course-cinemaabyss/monolith
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -53,16 +54,22 @@ monolith:
 proxyService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/proxy-service
+    repository: ghcr.io/tcatherine/architecture-course-cinemaabyss/proxy-service
     tag: latest
     pullPolicy: Always
   replicas: 1
+  cfg:
+    monolith_url: "http://monolith:8080"
+    movies_service_url: "http://movies-service:8081"
+    events_service_url: "http://events-service:8082"
+    gradual_migration: "true"
+    movies_migration_percent: "50"
   resources:
     limits:
       cpu: 300m
       memory: 256Mi
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 128Mi
   service:
     port: 80
@@ -73,7 +80,7 @@ proxyService:
 moviesService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/movies-service
+    repository: ghcr.io/tcatherine/architecture-course-cinemaabyss/movies-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -93,7 +100,7 @@ moviesService:
 eventsService:
   enabled: true
   image:
-    repository: ghcr.io/db-exp/cinemaabysstest/events-service
+    repository: ghcr.io/tcatherine/architecture-course-cinemaabyss/events-service
     tag: latest
     pullPolicy: Always
   replicas: 1
@@ -108,56 +115,29 @@ eventsService:
     port: 8082
     targetPort: 8082
     type: ClusterIP
+  cfg:
+    kafka_brokers: kafka.cinemaabyss:9092
 
 # Kafka configuration
 kafka:
   enabled: true
   image:
-    repository: wurstmeister/kafka
-    tag: 2.13-2.7.0
+    repository: apache/kafka
+    tag: 4.1.1
     pullPolicy: IfNotPresent
   replicas: 1
   resources:
-    limits:
-      cpu: 1000m
-      memory: 1Gi
     requests:
-      cpu: 200m
-      memory: 512Mi
+      memory: "52Mi"
+      cpu: "20m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
   persistence:
     enabled: true
-    size: 5Gi
+    size: 128Mi
     accessMode: ReadWriteOnce
-  topics:
-    - name: movie-events
-      partitions: 1
-      replicationFactor: 1
-    - name: user-events
-      partitions: 1
-      replicationFactor: 1
-    - name: payment-events
-      partitions: 1
-      replicationFactor: 1
-
-# Zookeeper configuration
-zookeeper:
-  enabled: true
-  image:
-    repository: wurstmeister/zookeeper
-    tag: latest
-    pullPolicy: IfNotPresent
-  replicas: 1
-  resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 256Mi
-  persistence:
-    enabled: true
-    size: 1Gi
-    accessMode: ReadWriteOnce
+    storageClass: local-path
 
 # Ingress configuration
 ingress:

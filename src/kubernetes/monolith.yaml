@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: monolith
-        image:  ghcr.io/db-exp/cinemaabysstest/monolith:latest
+        image: ghcr.io/tcatherine/architecture-course-cinemaabyss/monolith:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -41,8 +41,8 @@ spec:
             cpu: "500m"
             memory: "512Mi"
           requests:
-            cpu: "100m"
-            memory: "128Mi"
+            cpu: "10m"
+            memory: "28Mi"
         readinessProbe:
           httpGet:
             path: /api/users
