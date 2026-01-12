@@ -77,7 +77,7 @@ jobs:
           # Контекст и теги теперь подставляются автоматически для каждого инстанса матрицы
           context: ${{ matrix.context }}
           push: true
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
